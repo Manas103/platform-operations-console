@@ -1,0 +1,18 @@
+# Python
+backend/venv/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/.pytest_cache/
+*.pyc
+
+# Angular / Node
+console/node_modules/
+console/dist/
+console/.angular/
+console/coverage/
+bench/node_modules/
+*.log
+
+# IDE
+.idea/
+.vscode/

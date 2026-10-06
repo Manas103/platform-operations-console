@@ -1,0 +1,16 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-8.3.4, pluggy-1.6.0 -- C:\Users\Manas\Downloads\Auto Job Applier\Total Job Application process flow\projects\platform-operations-console\backend\venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Manas\Downloads\Auto Job Applier\Total Job Application process flow
+configfile: pytest.ini
+plugins: anyio-4.15.1
+collecting ... collected 6 items
+
+tests\test_api.py::test_deploy_state_lists_every_service PASSED          [ 16%]
+tests\test_api.py::test_vintage_status_every_failed_vintage_has_at_least_one_rule_failure PASSED [ 33%]
+tests\test_api.py::test_funds_with_failures_matches_the_underlying_data_exactly PASSED [ 50%]
+tests\test_api.py::test_three_click_drilldown_reaches_a_rule_and_a_record PASSED [ 66%]
+tests\test_api.py::test_violations_for_an_ok_run_is_empty PASSED         [ 83%]
+tests\test_api.py::test_unknown_fund_is_404 PASSED                       [100%]
+
+============================== 6 passed in 0.29s ==============================

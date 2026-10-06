@@ -1,0 +1,25 @@
+main {
+  font-family: system-ui, sans-serif;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+}
+.status-degraded, .status-fail, .status-failed { background: #fdeaea; }
+.status-healthy, .status-pass, .status-ok { background: #eafaf0; }
+.status-rolling-out { background: #fff8e1; }
+.drilldown { display: flex; gap: 1rem; }
+.column { min-width: 160px; }
+.column ul { list-style: none; padding: 0; }
+.column li { cursor: pointer; padding: 0.15rem 0.3rem; }
+.column li.selected { background: #cde3ff; }
+.error { color: #b00020; }

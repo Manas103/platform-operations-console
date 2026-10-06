@@ -1,0 +1,84 @@
+<main>
+  <h1>{{ title }}</h1>
+  <p class="error" *ngIf="loadError">{{ loadError }}</p>
+
+  <section>
+    <h2>Deploy state</h2>
+    <table>
+      <thead><tr><th>Service</th><th>Version</th><th>Status</th><th>Last deploy</th><th>Team</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let s of deployStates" [class]="'status-' + s.status">
+          <td>{{ s.service }}</td>
+          <td>{{ s.version }}</td>
+          <td>{{ s.status }}</td>
+          <td>{{ s.last_deploy_at }}</td>
+          <td>{{ s.team }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Vintage validation status</h2>
+    <p>{{ vintageStatuses.length }} vintages</p>
+    <table>
+      <thead><tr><th>Vintage</th><th>Instrument</th><th>Business date</th><th>Recorded at</th><th>Status</th><th>Rule failures</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let v of vintageStatuses" [class]="'status-' + v.validation_status">
+          <td>{{ v.vintage_id }}</td>
+          <td>{{ v.instrument_id }}</td>
+          <td>{{ v.business_date }}</td>
+          <td>{{ v.recorded_at }}</td>
+          <td>{{ v.validation_status }}</td>
+          <td>{{ v.rule_failures }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>P&amp;L drill-down (3 clicks: fund &rarr; date &rarr; rule and record)</h2>
+    <div class="drilldown">
+      <div class="column">
+        <h3>1. Fund with a failure</h3>
+        <ul>
+          <li *ngFor="let f of failedFunds" (click)="selectFund(f)" [class.selected]="f === selectedFund">{{ f }}</li>
+        </ul>
+      </div>
+      <div class="column" *ngIf="selectedFund">
+        <h3>2. Date</h3>
+        <ul>
+          <li *ngFor="let r of runsForSelectedFund" (click)="selectRun(r)"
+              [class.selected]="selectedRun === r" [class]="'status-' + r.status">
+            {{ r.run_date }} ({{ r.status }})
+          </li>
+        </ul>
+      </div>
+      <div class="column" *ngIf="selectedRun">
+        <h3>3. Rule and record</h3>
+        <ul>
+          <li *ngFor="let v of violationsForSelectedRun" (click)="selectViolation(v)"
+              [class.selected]="selectedViolation === v">
+            {{ v.rule_name }}
+          </li>
+        </ul>
+      </div>
+      <div class="column record" *ngIf="selectedViolation">
+        <h3>Record</h3>
+        <dl>
+          <dt>Rule</dt><dd>{{ selectedViolation.rule_name }} ({{ selectedViolation.rule_category }})</dd>
+          <dt>Source file</dt><dd>{{ selectedViolation.source_file }}</dd>
+          <dt>Source row</dt><dd>{{ selectedViolation.source_row }}</dd>
+          <dt>Detail</dt><dd>{{ selectedViolation.detail }}</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Time series (largest-triangle-three-buckets downsampling)</h2>
+    <p>{{ chartPointCount }} points drawn in {{ chartRenderMillis.toFixed(1) }}ms (demo series; the
+      31M-point/400ms claim is measured separately, see bench/render-benchmark.spec.ts)</p>
+    <svg #chart width="600" height="200"></svg>
+  </section>
+</main>
