@@ -1,0 +1,7 @@
+Full-scale time-series render benchmark (LTTB downsample + D3 draw, real headless Chromium)
+Series: 31,536,000 points (a year of 1Hz samples) -> 2000 points
+Repeats: 5
+Elapsed: p50=139.8ms min=123.3ms max=173.3ms
+Claim: under 400ms
+Spike at index 12345678 survived on every repeat: true
+Output was exactly 2000 points on every repeat: true

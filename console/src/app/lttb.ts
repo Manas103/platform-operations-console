@@ -23,15 +23,15 @@ export function lttb(data: Point[], threshold: number): Point[] {
   let a = 0; // index of the previously selected point
 
   for (let i = 0; i < threshold - 2; i++) {
-    const bucketStart = Math.floor((i + 1) * bucketSize) + 1;
-    const bucketEnd = Math.floor((i + 2) * bucketSize) + 1;
+    const bucketStart = Math.floor(i * bucketSize) + 1;
+    const bucketEnd = Math.floor((i + 1) * bucketSize) + 1;
     const nextBucketEnd = Math.min(bucketEnd, n);
 
     // average point of the NEXT bucket
     let avgX = 0;
     let avgY = 0;
     const nextStart = bucketEnd;
-    const nextEnd = Math.min(Math.floor((i + 3) * bucketSize) + 1, n);
+    const nextEnd = Math.min(Math.floor((i + 2) * bucketSize) + 1, n);
     const nextCount = Math.max(nextEnd - nextStart, 1);
     for (let j = nextStart; j < nextEnd; j++) {
       avgX += data[j].x;

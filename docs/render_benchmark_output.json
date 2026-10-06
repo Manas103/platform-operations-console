@@ -1,0 +1,39 @@
+{
+  "totalPoints": 31536000,
+  "threshold": 2000,
+  "repeats": 5,
+  "elapsedMs": {
+    "p50": 139.79999995231628,
+    "min": 123.30000001192093,
+    "max": 173.30000001192093
+  },
+  "allSpikesSurvived": true,
+  "allOutputCorrectSize": true,
+  "rawResults": [
+    {
+      "elapsedMs": 139.79999995231628,
+      "outputPoints": 2000,
+      "spikeSurvived": true
+    },
+    {
+      "elapsedMs": 137.70000004768372,
+      "outputPoints": 2000,
+      "spikeSurvived": true
+    },
+    {
+      "elapsedMs": 140.80000001192093,
+      "outputPoints": 2000,
+      "spikeSurvived": true
+    },
+    {
+      "elapsedMs": 173.30000001192093,
+      "outputPoints": 2000,
+      "spikeSurvived": true
+    },
+    {
+      "elapsedMs": 123.30000001192093,
+      "outputPoints": 2000,
+      "spikeSurvived": true
+    }
+  ]
+}

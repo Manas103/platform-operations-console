@@ -85,9 +85,11 @@ algorithm promises, not just that two implementations agree with each other.
 ```
 $ cd backend && pytest tests -v
 6 passed
-$ cd console && ng test
-<see docs/console_test_output.txt>
+$ cd console && ng test --watch=false
+TOTAL: 8 SUCCESS
 ```
+
+Full output: `docs/backend_test_output.txt`, `docs/console_test_output.txt`.
 
 `test_api.py` (6 tests): every deploy-state row has a valid status; every failed vintage has at
 least one rule failure and every passing vintage has zero; `funds-with-failures` matches the
@@ -100,7 +102,20 @@ responses asserted against the exact URLs the component calls.
 
 ## Findings
 
-<!-- filled in after the first genuine measurement; see docs/ for raw output -->
+**The reference-oracle cross-check caught a real off-by-one bucket-boundary bug in `lttb()` on
+the first run.** `lttb.spec.ts`'s exact-match test against `lttbReference` failed immediately,
+and a separate test asserting a single injected spike survives downsampling failed specifically
+for a spike placed at index 1 ("spike at index 1 was dropped"). The production `lttb()` computed
+each bucket's start and end as `floor((i + 1) * bucketSize) + 1` and `floor((i + 2) * bucketSize)
++ 1`; the correct boundaries (which `lttbReference` already used, written independently) are
+`floor(i * bucketSize) + 1` and `floor((i + 1) * bucketSize) + 1`. The off-by-one meant bucket 0
+started partway into the series instead of at index 1, silently excluding the first real bucket's
+worth of points, including index 1, from ever being a candidate. Fixing the boundary formula made
+both the reference-oracle test and the spike-sweep test pass, and did not change the shape of any
+other test, which is the expected signature of a boundary-condition fix rather than a logic
+rewrite. This is exactly the failure mode a reference oracle exists to catch: both implementations
+agreeing with each other would have meant nothing if both shared the same bug, but they were
+written independently, so they didn't.
 
 ## Measured results
 
@@ -110,8 +125,8 @@ responses asserted against the exact URLs the component calls.
 | per-vintage validation status | 40 vintages, every failed one carrying >=1 rule failure | yes |
 | 3-click drill-down from a failed P&L run to the record and rule | fund -> date -> violation, 3 selections, proven both at the API (`test_api.py`) and the component (`app.component.spec.ts`) level | yes |
 | largest-triangle-three-buckets downsampling | implemented and cross-checked point for point against an independent reference implementation over 4 series sizes | yes |
-| a year of 1-second samples (31M points) drawn as 2,000 points in under 400ms | see `docs/render_benchmark_output.txt` | see docs |
-| no spike dropped | a single injected spike survives downsampling at 5 different positions (unit tests) and at full 31.5M-point scale (`bench/measure.mjs`) | see docs |
+| a year of 1-second samples (31M points) drawn as 2,000 points in under 400ms | **p50 139.8ms, min 123.3ms, max 173.3ms** over 5 repeats, real headless Chromium | yes |
+| no spike dropped | a single injected spike survives downsampling at 5 different positions (unit tests) and on **5/5 repeats** at the full 31,536,000-point scale | yes |
 
 Full raw output: `docs/backend_test_output.txt`, `docs/console_test_output.txt`,
 `docs/render_benchmark_output.txt`.
