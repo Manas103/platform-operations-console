@@ -1,0 +1,14 @@
+=== RUN   TestCollector_PollOnceNormalizesAllSources
+--- PASS: TestCollector_PollOnceNormalizesAllSources (0.02s)
+=== RUN   TestCollector_ReadinessReflectsAllFourSources
+--- PASS: TestCollector_ReadinessReflectsAllFourSources (0.02s)
+=== RUN   TestCachedClient_ServesFromCacheWithinMaxAge
+--- PASS: TestCachedClient_ServesFromCacheWithinMaxAge (0.00s)
+=== RUN   TestCachedClient_RevalidatesAfterMaxAgeWith304
+--- PASS: TestCachedClient_RevalidatesAfterMaxAgeWith304 (0.01s)
+=== RUN   TestCachedClient_SurvivesRateLimitStormWithZeroDrops
+--- PASS: TestCachedClient_SurvivesRateLimitStormWithZeroDrops (0.00s)
+PASS
+ok  	platformops/collector	(cached)
+?   	platformops/collector/cmd/bench	[no test files]
+?   	platformops/collector/fakeupstream	[no test files]

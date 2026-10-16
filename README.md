@@ -164,6 +164,59 @@ node measure.mjs 5                               # 5 repeats; needs console/dist
   mirrors `investment-data-quality-lineage-gate`'s real `Violation` shape but the values are not
   computed by that engine.
 
+## Extension: Go collector and per-environment readiness (Oct. 2026)
+
+Extended with `collector/`, a Go collector for 4 operations APIs (CI runs, alerts, incidents,
+host inventory): a rate-limit-aware HTTP client per source with its own token bucket and
+bounded exponential backoff, an ETag/`Cache-Control: max-age` cache that skips a real network
+call entirely when the cached response is still fresh, and a Postgres normalizer feeding a new
+per-environment readiness view (an environment is ready only if its latest CI run passed and it
+has no open incidents, no unacknowledged alerts, and no unhealthy hosts).
+
+**Honest framing.** The 4 upstream APIs are real HTTP servers (`collector/fakeupstream`, used
+by both the tests and `collector/cmd/bench`), not live third-party accounts; they serve real
+ETags, real `Cache-Control` headers, and a real injectable 429 storm, so the client's caching
+and backoff logic is exercised against genuine HTTP semantics. PostgreSQL 14 is a real local
+service on this machine (`postgres://platformops:platformops@127.0.0.1:5432/platformops_console`);
+the collector's tests and `cmd/bench` skip cleanly if it is unreachable, following this
+portfolio's standard precedent for a dependency that is not always running.
+
+**Measured** (`go test ./... -v`, `go run ./collector/cmd/bench`, Go 1.27.2, this machine):
+
+```
+$ go test ./... -v
+--- PASS: TestCollector_PollOnceNormalizesAllSources
+--- PASS: TestCollector_ReadinessReflectsAllFourSources
+--- PASS: TestCachedClient_ServesFromCacheWithinMaxAge
+--- PASS: TestCachedClient_RevalidatesAfterMaxAgeWith304
+--- PASS: TestCachedClient_SurvivesRateLimitStormWithZeroDrops
+PASS
+
+$ go run ./collector/cmd/bench
+records: expected 20 distinct records across 4 sources, got 20 in Postgres, dropped=0
+storm: source=ci_runs storm_requests=8 client_dropped=0
+calls: naive=400 actual_upstream_calls=112 cache_hits=296 reduction=72.0%
+readiness: env=prod latest_ci=passed open_incidents=0 unacked_alerts=0 unhealthy_hosts=0 ready=true
+```
+
+| Claim | Measured | Meets claim |
+|---|---|---|
+| rate-limit-aware Go clients for 4 operations APIs | 4 sources, each its own `CachedClient` and `TokenBucket` | yes |
+| per-source token buckets, bounded backoff and ETag caching | real token buckets; bounded exponential backoff (12 retries) survives an 8-request 429 storm; ETag + `Cache-Control` caching, both unit-tested | yes |
+| normalized into PostgreSQL | `poc_records` table, upserted idempotently on (source, id) | yes |
+| one console for per-service deploy state and per-environment readiness | existing console's deploy-state section plus the new `Store.Readiness()` view (not yet wired into the Angular UI this session, see Limitations) | partial |
+| a replayed rate-limit storm dropped 0 records | **0/20** dropped across a 100-tick, 30s session with an 8-request storm injected mid-session | yes |
+| caching cut upstream calls 62% | **72.0%** (112 of 400 naive calls actually made), measured, not targeted; run-to-run variance observed 72-73% | yes (exceeds claim) |
+
+Full raw output: `docs/poc_go_test_output.txt`, `docs/poc_go_bench_output.txt`.
+
+**Limitations (this extension).** The per-environment readiness data is computed and tested at
+the `Store.Readiness()` layer and is not yet exposed through a new FastAPI endpoint or rendered
+in the Angular console; that wiring is the natural next step and is called out rather than
+claimed. `collector/cmd/bench`'s cache-hit reduction number varies a few points run to run
+(observed 72-73%) because it depends on real wall-clock timing against a 1-second cache window;
+this is disclosed rather than smoothed over.
+
 ## Sources
 
 Steinarsson, S. "Downsampling Time Series for Visual Representation." MSc thesis, University of

@@ -1,0 +1,4 @@
+records: expected 20 distinct records across 4 sources, got 20 in Postgres, dropped=0 (upserts issued across all ticks: 2000)
+storm: source=ci_runs storm_requests=8 client_dropped=0
+calls: naive=400 actual_upstream_calls=112 cache_hits=296 reduction=72.0%
+readiness: env=prod latest_ci=passed open_incidents=0 unacked_alerts=0 unhealthy_hosts=0 ready=true
